@@ -6,24 +6,30 @@ console.log("Hago consulta - axios");
     let titulo = document.getElementById("nombre2").value
     let tipo = document.getElementById("Tipo").value
     let Año = document.getElementById("año").value
-    console.log(tipo)
     await axios({
         method: 'get',
         url: 'https://www.omdbapi.com/?apikey=2f0f3be' + "&s=" + titulo + "&type=" + tipo + "&y=" + Año,
     })
 
     .then(res => {
+        while (valores.firstChild) {
+            valores.removeChild(valores.firstChild);
+        }
         console.log("res", res.data.Search)
         res.data.Search.forEach(actual=>{
         pelicula=document.createElement("li") 
-        pelicula.innerHTML=`Nombre: ${actual.Title} - Año:${actual.Year} - Tipo:${actual.Type} ` 
-        valores.appendChild(pelicula)
-        boton.createElement("a")
+        pelicula.innerHTML=`Nombre: ${actual.Title} - Año:${actual.Year} - Tipo:${actual.Type}` 
+        pelicula.setAttribute("id", `${actual.imdbID}`)
+        let boton = document.createElement("a")
         boton.setAttribute("class", "btn")
         boton.setAttribute("class", "btn-primary")
         boton.setAttribute("role", "button")
+        boton.setAttribute("onclick", 'MasDetalle(event)')
         boton.innerHTML= "Mas detalles"
-        valores.appendChild(boton) 
+        pelicula.appendChild(boton)
+        pelicula.appendChild(document.createElement("hr"))
+        valores.appendChild(pelicula)
+        console.log(pelicula.id)
         })
     })
     .catch(err => console.error("No se encontro nada con esas caracteristicas", err)) 
@@ -31,6 +37,61 @@ console.log("Hago consulta - axios");
 })();
 console.log("Fin consulta - axios")
 
+}
+
+
+let MasDetalle = event =>{
+    event.preventDefault();
+    let current = event.currentTarget
+    var anterior = current.parentNode
+    console.log(anterior.id)
+    console.log("Empieza la funcion axios");
+    (async () => {
+        console.log("Hago async consulta - axios")
+        await axios({
+            method: 'get',
+            url: 'https://www.omdbapi.com/?apikey=2f0f3be' + "&i=" + anterior.id,
+        })
+    
+        .then(res => {
+            while (detalles.firstChild) {
+                detalles.removeChild(detalles.firstChild);
+            }
+            console.log("res", res.data)
+            let row = document.createElement("div")
+            row.setAttribute("class", "row")
+            detalles.appendChild(row)
+            let columna = document.createElement("div")
+            columna.setAttribute("class","col-lg-4")
+            columna.setAttribute("class","col-md-12")
+            let imagen = document.createElement("img")
+            imagen.setAttribute("src", `${res.data.Poster}`)
+            columna.appendChild(imagen)
+            columna.appendChild(document.createElement("br"))
+            detalles.appendChild(columna)
+            detalles.appendChild(document.createElement("br"))
+            let columna2 = document.createElement("div")
+            columna2.setAttribute("class","col-lg-8")
+            columna2.setAttribute("class","col-md-12")
+            let titulo = document.createElement("label")
+            titulo.innerHTML = `${res.data.Title}`
+            columna2.appendChild(titulo)
+            columna2.appendChild(document.createElement("br"))
+            let plot = document.createElement("label")
+            plot.innerHTML = ` Historia: ${res.data.Plot}`
+            columna2.appendChild(plot)
+            let fecha = document.createElement("label")
+            fecha.innerHTML = ` Historia: ${res.data.Released}`
+            columna2.appendChild(fecha)
+            columna2.appendChild(document.createElement("br"))
+            detalles.appendChild(columna2)
+            detalles.appendChild(document.createElement("hr"))
+        })
+        .catch(err => console.error("No se encontro nada con esas caracteristicas", err)) 
+        console.log("Fin async consulta - axios")
+    })();
+    console.log("Fin consulta - axios")
+    
 }
 
 
